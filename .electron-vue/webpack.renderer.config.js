@@ -11,6 +11,8 @@ const CopyWebpackPlugin = require('copy-webpack-plugin')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 
+var vueLoaderConfig = require('./vue-loader.config')
+
 /**
  * List of node_modules to include in webpack bundle
  *
@@ -19,6 +21,10 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/webpack-configurations.html#white-listing-externals
  */
 let whiteListedModules = ['vue']
+
+function resolve(dir) {
+  return path.join(__dirname, '..', dir)
+}
 
 let rendererConfig = {
   devtool: '#cheap-module-eval-source-map',
@@ -40,6 +46,19 @@ let rendererConfig = {
             formatter: require('eslint-friendly-formatter')
           }
         }
+      },
+      {
+        test: /\.ts$/,
+        loader: 'ts-loader',
+        include: [resolve('src')],
+        options: {
+          transpileOnly: true
+        }
+      },
+      {
+        test: /\.es6$/,
+        loader: 'babel-loader',
+        include: resolve('src')
       },
       {
         test: /\.css$/,
@@ -65,13 +84,7 @@ let rendererConfig = {
         test: /\.vue$/,
         use: {
           loader: 'vue-loader',
-          options: {
-            extractCSS: process.env.NODE_ENV === 'production',
-            loaders: {
-              sass: 'vue-style-loader!css-loader!sass-loader?indentedSyntax=1',
-              scss: 'vue-style-loader!css-loader!sass-loader'
-            }
-          }
+          options: vueLoaderConfig
         }
       },
       {
@@ -121,9 +134,11 @@ let rendererConfig = {
   resolve: {
     alias: {
       '@': path.join(__dirname, '../src/renderer'),
+      'components': resolve('src/renderer/components'),
+      'views': resolve('src/renderer/views'),
       'vue$': 'vue/dist/vue.esm.js'
     },
-    extensions: ['.js', '.vue', '.json', '.css', '.node']
+    extensions: ['.js', 'es6', '.ts', '.vue', '.json', '.css', '.node']
   },
   target: 'electron-renderer'
 }

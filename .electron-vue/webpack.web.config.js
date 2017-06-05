@@ -10,6 +10,10 @@ const CopyWebpackPlugin = require('copy-webpack-plugin')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 
+function resolve(dir) {
+  return path.join(__dirname, '..', dir)
+}
+
 let webConfig = {
   devtool: '#cheap-module-eval-source-map',
   entry: {
@@ -26,6 +30,14 @@ let webConfig = {
           options: {
             formatter: require('eslint-friendly-formatter')
           }
+        }
+      },
+      {
+        test: /\.ts$/,
+        loader: 'ts-loader',
+        include: [resolve('src')],
+        options: {
+          transpileOnly: true
         }
       },
       {
@@ -105,9 +117,11 @@ let webConfig = {
   resolve: {
     alias: {
       '@': path.join(__dirname, '../src/renderer'),
+      'components': resolve('src/renderer/components'),
+      'views': resolve('src/renderer/views'),
       'vue$': 'vue/dist/vue.esm.js'
     },
-    extensions: ['.js', '.vue', '.json', '.css']
+    extensions: ['.js', '.ts', '.vue', '.json', '.css']
   },
   target: 'web'
 }
